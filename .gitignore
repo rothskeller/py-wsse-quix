@@ -1,6 +1,7 @@
-py_wsse.egg-info/
+py_wsse_quix.egg-info/
 htmlcov/
 .tox/
 doc/_build/
 dist/
 .coverage
+build/

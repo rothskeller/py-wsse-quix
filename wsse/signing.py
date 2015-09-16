@@ -11,12 +11,12 @@ module.
 from lxml import etree
 import xmlsec
 
-from .constants import DS_NS, SOAP_NS, WSSE_NS, WSU_NS
+from .constants import DS_NS, SOAP_NS, WSSE_NS, WSU_NS, X509TOKEN, BASE64B
 from .exceptions import SignatureVerificationFailed
 from .xml import ensure_id, ns
 
 
-def sign(envelope, keyfile, certfile):
+def sign(envelope, keyfile, certfile, password):
     """Sign given SOAP envelope with WSSE sig using given key and cert.
 
     Sign the wsu:Timestamp node in the wsse:Security header and the soap:Body;
@@ -123,7 +123,7 @@ def sign(envelope, keyfile, certfile):
     x509_data.append(x509_certificate)
 
     # Load the signing key and certificate.
-    key = xmlsec.Key.from_file(keyfile, xmlsec.KeyFormat.PEM)
+    key = xmlsec.Key.from_file(keyfile, xmlsec.KeyFormat.PEM, password)
     key.load_cert_from_file(certfile, xmlsec.KeyFormat.PEM)
 
     # Insert the Signature node in the wsse:Security header.
@@ -144,7 +144,20 @@ def sign(envelope, keyfile, certfile):
     # the X509 data (because it doesn't understand WSSE).
     sec_token_ref = etree.SubElement(
         key_info, ns(WSSE_NS, 'SecurityTokenReference'))
-    sec_token_ref.append(x509_data)
+
+    key_info.remove(x509_data)
+
+    token = etree.Element(
+        ns(WSSE_NS, 'BinarySecurityToken'),
+        { ns(WSU_NS, 'Id'): 'SecurityToken-UserCert',
+          'EncodingType': BASE64B,
+          'ValueType': X509TOKEN })
+    token.text = x509_data.getchildren()[0].text
+    security.insert(0, token)
+
+    sec_token_ref2 = etree.SubElement(
+        sec_token_ref, ns(WSSE_NS, 'Reference'),
+        { 'ValueType': X509TOKEN, 'URI': '#SecurityToken-UserCert' })
 
     return etree.tostring(doc)
 

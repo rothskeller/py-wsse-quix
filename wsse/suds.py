@@ -39,19 +39,16 @@ class WssePlugin(MessagePlugin):
     only the first child element of the soap:Body will be encrypted).
 
     """
-    def __init__(self, keyfile, certfile, their_certfile):
+    def __init__(self, keyfile, certfile, password):
         self.keyfile = keyfile
         self.certfile = certfile
-        self.their_certfile = their_certfile
+        self.password = password
 
     def sending(self, context):
         """Sign and encrypt outgoing message envelope."""
         context.envelope = sign(
-            context.envelope, self.keyfile, self.certfile)
-        context.envelope = encrypt(context.envelope, self.their_certfile)
+            context.envelope, self.keyfile, self.certfile, self.password)
 
     def received(self, context):
         """Decrypt and verify signature of incoming reply envelope."""
-        if context.reply:
-            context.reply = decrypt(context.reply, self.keyfile)
-            verify(context.reply, self.their_certfile)
+        pass

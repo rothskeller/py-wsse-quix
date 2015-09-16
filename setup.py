@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 long_description = (
-    open('README.rst').read() + '\n\n' + open('CHANGES.rst').read())
+    open('README.rst').read())
 
 
 def get_version():
@@ -14,13 +14,12 @@ def get_version():
 
 
 setup(
-    name='py-wsse',
+    name='py-wsse-quix',
     version=get_version(),
-    description="WS-Security (SOAP WSSE) signing and encryption",
+    description="WS-Security (SOAP WSSE) signing for QuIX",
     long_description=long_description,
-    author='ORCAS, Inc',
-    author_email='orcastech@orcasinc.com',
-    url='https://github.com/orcasgit/py-wsse/',
+    author='ORCAS, Inc, Steve Roth',
+    author_email='steve.roth@hpe.com',
     packages=find_packages(),
     install_requires=[
         'xmlsec>=0.3.1.orcas1',
